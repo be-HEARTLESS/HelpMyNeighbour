@@ -1,0 +1,82 @@
+version: '3.8'
+
+services:
+  # MongoDB Database
+  mongodb:
+    image: mongo:7.0
+    container_name: helpneighbour_mongodb
+    restart: unless-stopped
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: helpneighbour
+      MONGO_INITDB_ROOT_PASSWORD: helpneighbour123
+      MONGO_INITDB_DATABASE: helpneighbour
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodb_data:/data/db
+    networks:
+      - helpneighbour_network
+
+  # Redis for caching and sessions
+  redis:
+    image: redis:7.2-alpine
+    container_name: helpneighbour_redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - helpneighbour_network
+
+  # Django Backend
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: helpneighbour_backend
+    restart: unless-stopped
+    environment:
+      - DEBUG=True
+      - DATABASE_URL=mongodb://helpneighbour:helpneighbour123@mongodb:27017/helpneighbour?authSource=admin
+      - REDIS_URL=redis://redis:6379/0
+      - CORS_ALLOWED_ORIGINS=http://localhost:3000,http://127.0.0.1:3000
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./backend:/app
+      - backend_media:/app/media
+    depends_on:
+      - mongodb
+      - redis
+    networks:
+      - helpneighbour_network
+
+  # React Frontend
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: helpneighbour_frontend
+    restart: unless-stopped
+    environment:
+      - REACT_APP_API_URL=http://localhost:8000/api
+      - CHOKIDAR_USEPOLLING=true
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    depends_on:
+      - backend
+    networks:
+      - helpneighbour_network
+
+volumes:
+  mongodb_data:
+  redis_data:
+  backend_media:
+
+networks:
+  helpneighbour_network:
+    driver: bridge
