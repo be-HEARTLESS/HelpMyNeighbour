@@ -57,11 +57,11 @@ A community-driven web platform that connects neighbors to help each other with 
 
 ### Backend
 - **Framework**: Django REST Framework
-- **Database**: MongoDB with Mongoose ODM
-- **Authentication**: JWT tokens
-- **Real-time**: WebSocket connections
-- **File Storage**: AWS S3 or Cloudinary
-- **Email Service**: SendGrid or AWS SES
+- **Database**: SQLite (development) / PostgreSQL (production)
+- **Authentication**: JWT tokens with django-rest-framework-simplejwt
+- **Real-time**: Django Channels with Redis
+- **File Storage**: Local storage (development) / AWS S3 (production)
+- **Email Service**: Console backend (development) / SendGrid (production)
 
 ### Infrastructure
 - **Notifications**: Firebase Cloud Messaging
@@ -79,24 +79,27 @@ help-my-neighbour/
 │   ├── src/
 │   │   ├── components/      # Reusable UI components
 │   │   ├── pages/           # Route-based page components
-│   │   ├── hooks/           # Custom React hooks
 │   │   ├── services/        # API service functions
 │   │   ├── store/           # Redux store configuration
-│   │   ├── utils/           # Helper functions
-│   │   └── styles/          # Global styles
+│   │   ├── types/           # TypeScript type definitions
+│   │   └── utils/           # Helper functions
+│   ├── .env                 # Environment variables
+│   ├── .env.example         # Environment variables template
 │   ├── package.json
-│   └── tailwind.config.js
+│   ├── tailwind.config.js
+│   ├── Dockerfile           # Docker configuration
+│   └── craco.config.js      # Build configuration
 ├── backend/                  # Django application
-│   ├── apps/                # Django apps
-│   │   ├── users/           # User management
-│   │   ├── requests/        # Help requests
-│   │   ├── chat/            # Messaging system
-│   │   └── community/       # Community features
-│   ├── config/              # Django settings
+│   ├── helpneighbour/       # Django project settings
+│   ├── users/               # User management app
+│   ├── help_requests/       # Help requests app
+│   ├── db.sqlite3           # SQLite database (development)
+│   ├── .env                 # Environment variables
 │   ├── requirements.txt
-│   └── manage.py
+│   ├── manage.py
+│   └── Dockerfile           # Docker configuration
 ├── docs/                     # Documentation
-├── docker-compose.yml        # Docker configuration
+├── docker-compose.yml        # Docker services configuration
 └── README.md
 ```
 
